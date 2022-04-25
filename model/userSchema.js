@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const bcrypt = require('bcryptjs')
 
 const userSchema = mongoose.Schema({
     fullname: {
@@ -34,6 +35,19 @@ const userSchema = mongoose.Schema({
         required: true
     }
 
+})
+
+
+
+
+// hashing the password (middleware)
+
+userSchema.pre('save', function (next) {
+    if (this.isModified('password')) {
+        this.password = bcrypt.hash(this.password, 12);  // 12 rounds
+        this.confirmPassword = bcrypt.hash(this.confirmPassword, 12)
+    }
+    next();
 })
 
 

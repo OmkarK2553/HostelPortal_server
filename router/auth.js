@@ -74,11 +74,11 @@ router.post('/register', async (req, res) => {
                 res.cookie("jwtoken", token);
                 // name,value,callback(optional)
 
-                if (!isMatch) {
-                    res.status(400).json({ error: "Invalid Credentials!" })
-
+                if (isMatch) {
+                    res.status(400).json({ error: "Invalid Credentials! as pwd did not match" });
+                }else{
+                    res.json({ message: "Login Successful!" })
                 }
-                res.json({ message: "Login Successful!" })
             }
             else {
                 res.status(400).json({ error: "Invalid Credentials!" })

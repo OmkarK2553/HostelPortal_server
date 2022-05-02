@@ -1,5 +1,7 @@
 const express = require('express')
 const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
+const authenticate = require('../middleware/authenticate')
 const router = express.Router();
 
 require('../db/conn')
@@ -9,12 +11,19 @@ router.get('/', (req, res) => {
     res.send('PBL router')
 })
 
+router.get('/dashboard', authenticate, (req, res) => {
+    res.send(req.rootUser)
+})
+
 router.post('/register', async (req, res) => {
 
-    const { fullname, email, userid, gender, mobile, password, confirmpassword } = req.body
+    const { fullname, email, userid, gender, mobile, password, confirmPassword } = req.body
 
-    if (!fullname || !email || !userid || !gender || !mobile || !password || !confirmpassword) {
-        return res.status(422).json({ error: "Please fill all the fields!" })
+    if (!fullname || !email || !userid || !gender || !mobile || !password || !confirmPassword) {
+        console.log(fullname, email, userid, gender, mobile, password, confirmPassword);
+        return res.status(422).json({
+            error: "Please fill all the fields!", fullname, email, userid, gender, mobile, password, confirmPassword
+        })
     }
 
     try {
@@ -23,11 +32,11 @@ router.post('/register', async (req, res) => {
         if (userExist) {
             return res.status(422).json({ error: "Email Already Registered!" })
         }
-        else if (password != confirmpassword) {
+        else if (password != confirmPassword) {
             return res.status(422).json({ error: "Passwords are not matching!" })
         }
 
-        const user = new User({ fullname, email, userid, gender, mobile, password, confirmpassword })
+        const user = new User({ fullname, email, userid, gender, mobile, password, confirmPassword })
 
         // middleware will be called for hashing password
         const userRegistered = await user.save();
@@ -49,6 +58,7 @@ router.post('/register', async (req, res) => {
 
     router.post('/login', async (req, res) => {
         try {
+            let token;
             const { email, password } = req.body;
 
             if (!email || !password) {
@@ -59,6 +69,10 @@ router.post('/register', async (req, res) => {
 
             if (userLogin) {
                 const isMatch = await bcrypt.compare(password, userLogin.password);
+                token = await userLogin.generateAuthToken();
+
+                res.cookie("jwtoken", token);
+                // name,value,callback(optional)
 
                 if (!isMatch) {
                     res.status(400).json({ error: "Invalid Credentials!" })

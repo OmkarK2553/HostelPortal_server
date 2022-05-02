@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
 
 const userSchema = mongoose.Schema({
     fullname: {
@@ -33,7 +34,14 @@ const userSchema = mongoose.Schema({
     confirmPassword: {
         type: String,
         required: true
-    }
+    },
+    // user will login multiple times..hence array of objects
+    tokens: [{
+        token: {
+            type: String,
+            required: true
+        }
+    }]
 
 })
 
@@ -49,6 +57,19 @@ userSchema.pre('save', function (next) {
     }
     next();
 })
+
+// we are genersting the token
+userSchema.methods.generateAuthToken = async function () {
+    try {
+        let token = jwt.sign({ _id: this._id }, process.env.SECRET_KEY)
+        this.tokens = this.tokens.concat({ token: token })
+        await this.save();
+        return token;
+        // jwt.sign(payload,secretkey)  payload=unique
+    } catch (e) {
+        console.log(e);
+    }
+}
 
 
 const User = mongoose.model('USER', userSchema)

@@ -15,9 +15,6 @@ app.use(require('./router/auth'))
 
 const PORT = process.env.PORT
 
-app.get('/', (req, res) => {
-    res.send('PBL')
-})
 
 app.listen(PORT, () => {
     console.log(`listening to port ${PORT}`);

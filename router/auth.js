@@ -8,21 +8,21 @@ require("../db/conn");
 const User = require("../model/userSchema");
 
 router.get("/", (req, res) => {
-  res.send("PBL router");
+    res.send("PBL router");
 });
 
 router.get("/dashboard", authenticate, (req, res) => {
-  res.send(req.rootUser);
+    res.send(req.rootUser);
 });
 
 router.get("/users", (req, res) => {
-  User.find({}, (err, users) => {
-    if (err) {
-      res.status(400).send(err);
-    } else {
-      res.send(users);
-    }
-  });
+    User.find({}, (err, users) => {
+        if (err) {
+            res.status(400).send(err);
+        } else {
+            res.send(users);
+        }
+    });
 });
 
 router.get("/maleusers", (req, res) => {
@@ -132,7 +132,7 @@ router.post("/register", async (req, res) => {
       return res.status(422).json({ error: "Passwords are not matching!" });
     }
 
-    const user = new User({
+    const usera = new User({
       fullname,
       email,
       userid,
@@ -143,58 +143,70 @@ router.post("/register", async (req, res) => {
       confirmPassword,
     });
 
-    // middleware will be called for hashing password
-    const userRegistered = await user.save();
+        if (userExist) {
+            console.log(userExist);
+            return res.status(422).json({ error: "Email Already Registered!" });
+        } else if (password != confirmPassword) {
+            return res.status(422).json({ error: "Passwords are not matching!" });
+        }
 
-    console.log(`${user} registered successfully!`);
+        const user = new User({
+            fullname,
+            email,
+            userid,
+            gender,
+            mobile,
+            password,
+            confirmPassword,
+        });
 
-    if (userRegistered) {
-      res.status(201).json({ message: "User Registered Successfully!" });
-    } else {
-      res.status(500).json({ error: "Failed to Register!" });
+        // middleware will be called for hashing password
+        const userRegistered = await user.save();
+
+        console.log(`${user} registered successfully!`);
+
+        if (userRegistered) {
+            res.status(201).json({ message: "User Registered Successfully!" });
+        } else {
+            res.status(500).json({ error: "Failed to Register!" });
+        }
+    } catch (err) {
+        console.log(err);
     }
-  } catch (err) {
-    console.log(err);
-  }
 });
 router.post("/userlogin", async (req, res) => {
-  try {
-    let token;
-    const { email, password } = req.body;
+    try {
+        let token;
+        const { email, password } = req.body;
 
-    if (!email || !password) {
-      return res
-        .status(400)
-        .json({ error: "Please enter the required fields!" });
+        if (!email || !password) {
+            return res
+                .status(400)
+                .json({ error: "Please enter the required fields!" });
+        }
+
+        const userLogin = await User.findOne({ email: email }); // returns object with the desired email
+
+        if (userLogin) {
+            const isMatch = await bcrypt.compare(password, userLogin.password);
+            token = await userLogin.generateAuthToken();
+
+            res.cookie("jwtoken", token);
+            // name,value,callback(optional)
+
+            if (isMatch) {
+                res
+                    .status(400)
+                    .json({ error: "Invalid Credentials! as pwd did not match" });
+            } else {
+                res.json({ message: "Login Successful!" });
+            }
+        } else {
+            res.status(400).json({ error: "Invalid Credentials!" });
+        }
+    } catch (err) {
+        console.log(err);
     }
-
-    const userLogin = await User.findOne({ email: email }); // returns object with the desired email
-
-    if (userLogin) {
-      const isMatch = await bcrypt.compare(password, userLogin.password);
-      token = await userLogin.generateAuthToken();
-
-      res.cookie("jwtoken", token, {
-        maxAge: new Date() * +30000,
-        domain: "mydomain.com",
-        secure: true,
-        sameSite: "none",
-      });
-      // name,value,callback(optional)
-
-      if (isMatch) {
-        res
-          .status(400)
-          .json({ error: "Invalid Credentials! as pwd did not match" });
-      } else {
-        res.json({ message: "Login Successful!" });
-      }
-    } else {
-      res.status(400).json({ error: "Invalid Credentials!" });
-    }
-  } catch (err) {
-    console.log(err);
-  }
 });
 
 module.exports = router;

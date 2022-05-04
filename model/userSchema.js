@@ -18,8 +18,12 @@ const userSchema = mongoose.Schema({
         required: true,
         unique: true
     },
+    isAdmin:{
+        type:String
+    },
     gender: {
         type: String,
+        enum: ['M', 'F'],
         required: true,
     },
     mobile: {

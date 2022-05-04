@@ -25,15 +25,76 @@ router.get("/users", (req, res) => {
   });
 });
 
+router.get("/maleusers", (req, res) => {
+  User.find(
+    {
+      gender: "M",
+    },
+    (err, users) => {
+      if (err) {
+        res.status(400).send(err);
+      } else {
+        res.send({ result: "success", users });
+      }
+    }
+  );
+});
+router.get("/femaleusers", (req, res) => {
+  User.find(
+    {
+      gender: "F",
+    },
+    (err, users) => {
+      if (err) {
+        res.status(400).send(err);
+      } else {
+        res.send({ result: "success", users });
+      }
+    }
+  );
+});
+// router.post("/editUser", (req, res) => {
+//   const { fullname, email, userid, gender, mobile, password } =
+//     req.body;
+//   User.findByIdAndUpdate(
+//     req.body.userid,
+//     {
+//       $set: {
+//         fullname: req.body.fullname,
+//         email: req.body.email,
+//         mobile: req.body.mobile,
+//         password: req.body.password,
+//         role: req.body.role,
+
+//       },
+//     },
+//     (err, user) => {
+//       if (err) {
+//         res.status(400).send(err);
+//       } else {
+//         res.send(user);
+//       }
+//     }
+//   );
+
 router.post("/register", async (req, res) => {
-  const { fullname, email, userid, gender, mobile, password, confirmPassword } =
-    req.body;
+  const {
+    fullname,
+    email,
+    userid,
+    gender,
+    isAdmin,
+    mobile,
+    password,
+    confirmPassword,
+  } = req.body;
 
   if (
     !fullname ||
     !email ||
     !userid ||
     !gender ||
+    !isAdmin ||
     !mobile ||
     !password ||
     !confirmPassword
@@ -43,6 +104,7 @@ router.post("/register", async (req, res) => {
       email,
       userid,
       gender,
+      isAdmin,
       mobile,
       password,
       confirmPassword
@@ -53,6 +115,7 @@ router.post("/register", async (req, res) => {
       email,
       userid,
       gender,
+      isAdmin,
       mobile,
       password,
       confirmPassword,
@@ -74,6 +137,7 @@ router.post("/register", async (req, res) => {
       email,
       userid,
       gender,
+      isAdmin,
       mobile,
       password,
       confirmPassword,
@@ -110,7 +174,12 @@ router.post("/userlogin", async (req, res) => {
       const isMatch = await bcrypt.compare(password, userLogin.password);
       token = await userLogin.generateAuthToken();
 
-      res.cookie("jwtoken", token);
+      res.cookie("jwtoken", token, {
+        maxAge: new Date() * +30000,
+        domain: "mydomain.com",
+        secure: true,
+        sameSite: "none",
+      });
       // name,value,callback(optional)
 
       if (isMatch) {

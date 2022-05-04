@@ -132,16 +132,6 @@ router.post("/register", async (req, res) => {
       return res.status(422).json({ error: "Passwords are not matching!" });
     }
 
-    const usera = new User({
-      fullname,
-      email,
-      userid,
-      gender,
-      isAdmin:"F",
-      mobile,
-      password,
-      confirmPassword,
-    });
 
         if (userExist) {
             console.log(userExist);

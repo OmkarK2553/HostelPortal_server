@@ -83,7 +83,7 @@ router.post("/register", async (req, res) => {
     email,
     userid,
     gender,
-    isAdmin,
+    // isAdmin,
     mobile,
     password,
     confirmPassword,
@@ -94,7 +94,7 @@ router.post("/register", async (req, res) => {
     !email ||
     !userid ||
     !gender ||
-    !isAdmin ||
+    // !isAdmin ||
     !mobile ||
     !password ||
     !confirmPassword
@@ -104,7 +104,7 @@ router.post("/register", async (req, res) => {
       email,
       userid,
       gender,
-      isAdmin,
+      // isAdmin,
       mobile,
       password,
       confirmPassword
@@ -115,7 +115,7 @@ router.post("/register", async (req, res) => {
       email,
       userid,
       gender,
-      isAdmin,
+      // isAdmin,
       mobile,
       password,
       confirmPassword,
@@ -127,7 +127,7 @@ router.post("/register", async (req, res) => {
 
     if (userExist) {
       console.log(userExist);
-      return res.status(422).json({ error: "Email Already Registered!" });
+      return res.status(422).json({ error: "Email Already` Registered!" });
     } else if (password != confirmPassword) {
       return res.status(422).json({ error: "Passwords are not matching!" });
     }
@@ -137,7 +137,7 @@ router.post("/register", async (req, res) => {
       email,
       userid,
       gender,
-      isAdmin,
+      isAdmin:"F",
       mobile,
       password,
       confirmPassword,

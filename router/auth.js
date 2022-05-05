@@ -7,9 +7,9 @@ const router = express.Router();
 require("../db/conn");
 const User = require("../model/userSchema");
 
-// router.get("/", (req, res) => {
-//   res.send("PBL router");
-// });
+router.get("/", (req, res) => {
+  res.send("PBL router");
+});
 
 router.get("/dashboard", authenticate, (req, res) => {
   res.send(req.rootUser);

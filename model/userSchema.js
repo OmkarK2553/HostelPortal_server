@@ -18,8 +18,8 @@ const userSchema = mongoose.Schema({
         required: true,
         unique: true
     },
-    isAdmin:{
-        type:String
+    isAdmin: {
+        type: String
     },
     gender: {
         type: String,
@@ -48,9 +48,6 @@ const userSchema = mongoose.Schema({
     }]
 
 })
-
-
-
 
 // hashing the password (middleware)
 

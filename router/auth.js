@@ -127,7 +127,7 @@ router.post("/register", async (req, res) => {
 
     if (userExist) {
       console.log(userExist);
-      return res.status(422).json({ error: "Email Already` Registered!" });
+      return res.status(422).json({ error: "Email Already Registered!" });
     } else if (password != confirmPassword) {
       return res.status(422).json({ error: "Passwords are not matching!" });
     }
@@ -190,7 +190,7 @@ router.post("/userlogin", async (req, res) => {
           .status(400)
           .json({ error: "Invalid Credentials!" });
       } else {
-        res.json({ message: "Login Successful!" });
+        res.json({ message: "Login Successfully!", cookie: token });
       }
     } else {
       res.status(400).json({ error: "Invalid Credentials!" });

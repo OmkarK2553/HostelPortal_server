@@ -164,6 +164,8 @@ router.post("/register", async (req, res) => {
     console.log(err);
   }
 });
+
+let currUser;
 router.post("/userlogin", async (req, res) => {
   try {
     let token;
@@ -176,21 +178,22 @@ router.post("/userlogin", async (req, res) => {
     }
 
     const userLogin = await User.findOne({ email: email }); // returns object with the desired email
+    currUser = userLogin;
     console.log(userLogin);
 
     if (userLogin) {
       const isMatch = await bcrypt.compare(password, userLogin.password);
-      token = await userLogin.generateAuthToken();
+      // token = await userLogin.generateAuthToken();
 
-      res.cookie("jwtoken", token);
+      // res.cookie("jwtoken", token);
       // name,value,callback(optional)
 
-      if (isMatch) {
+      if (!isMatch) {
         res
           .status(400)
           .json({ error: "Invalid Credentials!" });
       } else {
-        res.json({ message: "Login Successfully!", cookie: token });
+        res.json({ message: "Login Successfully!" });
       }
     } else {
       res.status(400).json({ error: "Invalid Credentials!" });
@@ -200,4 +203,5 @@ router.post("/userlogin", async (req, res) => {
   }
 });
 
+module.exports = currUser;
 module.exports = router;
